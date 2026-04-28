@@ -32,42 +32,49 @@ export default function CreateRoute() {
   const [selectedStop, setSelectedStop] = useState('');
   const [editingBusId, setEditingBusId] = useState<string | null>(null);
 
-  const mockBusResults: SearchResult[] = [
-    { id: 'M15', value: 'M15', label: 'M15 - 1st/2nd Avenues' },
-    { id: 'M20', value: 'M20', label: 'M20 - 7th/8th Avenues' },
-    { id: 'M34', value: 'M34', label: 'M34 - 34th Street Crosstown' },
-    { id: 'M42', value: 'M42', label: 'M42 - 42nd Street Crosstown' },
-    { id: 'BX12', value: 'BX12', label: 'BX12 - Fordham Road' },
-  ];
+  // const mockBusResults: SearchResult[] = [
+  //   { id: 'M15', value: 'M15', label: 'M15 - 1st/2nd Avenues' },
+  //   { id: 'M20', value: 'M20', label: 'M20 - 7th/8th Avenues' },
+  //   { id: 'M34', value: 'M34', label: 'M34 - 34th Street Crosstown' },
+  //   { id: 'M42', value: 'M42', label: 'M42 - 42nd Street Crosstown' },
+  //   { id: 'BX12', value: 'BX12', label: 'BX12 - Fordham Road' },
+  // ];
+  const [busResults, setBusResults] = useState<SearchResult[]>([]);
+    const [stopResults, setStopResults] = useState<SearchResult[]>([]);
 
-  const mockStopResults: SearchResult[] = [
-    { id: 's1', value: 'Broadway & 42nd St', label: 'Broadway & 42nd St' },
-    { id: 's2', value: '5th Ave & 34th St', label: '5th Ave & 34th St' },
-    { id: 's3', value: 'Madison Ave & 23rd St', label: 'Madison Ave & 23rd St' },
-    { id: 's4', value: 'Lexington Ave & 59th St', label: 'Lexington Ave & 59th St' },
-    { id: 's5', value: 'Amsterdam Ave & 72nd St', label: 'Amsterdam Ave & 72nd St' },
-  ];
+  fetch("")
 
-  const directions = ['Uptown', 'Downtown', 'Eastbound', 'Westbound'];
+  const directions = ['Uptown', 'Downtown'];
+  // downtown: GTFS Direction 0
+  // uptown: 1
 
-  const handleBusSearch = () => {
+
+  const handleBusSearch = async () => {
+    const busListResponse = await fetch(
+      "https://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=872a01f6-1395-48a3-836c-7095c06be381",
+      {method: "GET"}
+    );
+    const responseJson = await busListResponse.json();
+    const busResults = responseJson.data.list.map((b) => ({id: b.shortName, value: b.shortName, label: `${b.shortName} - ${b.longName}`} as SearchResult));
     setSearchingBus(true);
-    setTimeout(() => {
-      setBusSearchResults(mockBusResults.filter(bus =>
-        bus.label.toLowerCase().includes(busSearchQuery.toLowerCase())
-      ));
-      setSearchingBus(false);
-    }, 800);
+    setBusSearchResults(busResults.filter(bus =>
+      bus.label.toLowerCase().includes(busSearchQuery.toLowerCase())
+    ));
+    setSearchingBus(false);
   };
 
-  const handleStopSearch = () => {
+  const handleStopSearch = async () => {
     setSearchingStop(true);
-    setTimeout(() => {
-      setStopSearchResults(mockStopResults.filter(stop =>
-        stop.label.toLowerCase().includes(stopSearchQuery.toLowerCase())
-      ));
-      setSearchingStop(false);
-    }, 800);
+    const stopListResponse = await fetch(
+      `https://bustime.mta.info/api/where/stops-for-route/MTA%20${selectedBus}.json?key=872a01f6-1395-48a3-836c-7095c06be381&includePolylines=false&version=2`,
+      {method: "GET"}
+    );
+    const responseJson = await stopListResponse.json();
+    const stopResults = responseJson.data.references.stops.map((s) => ({id: s.id, value: s.name, label: s.name} as SearchResult));
+    setStopSearchResults(stopResults.filter(stop =>
+      stop.label.toLowerCase().includes(stopSearchQuery.toLowerCase())
+    ));
+    setSearchingStop(false);
   };
 
   const handleAddBus = () => {
