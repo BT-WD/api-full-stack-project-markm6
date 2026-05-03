@@ -4,11 +4,16 @@ import Main from "./Main";
 import CreateRoute from "./CreateRoute";
 import EditRoute from "./EditRoute";
 import NotFound from "./NotFound";
+import Register from "./Register";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: Login,
+  },
+  {
+    path: "/register",
+    Component: Register,
   },
   {
     path: "/main",

@@ -49,33 +49,73 @@ export default function CreateRoute() {
   // uptown: 1
 
 
-  const handleBusSearch = async () => {
-    const busListResponse = await fetch(
-      "https://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=872a01f6-1395-48a3-836c-7095c06be381",
-      {method: "GET"}
-    );
-    const responseJson = await busListResponse.json();
-    const busResults = responseJson.data.list.map((b) => ({id: b.shortName, value: b.shortName, label: `${b.shortName} - ${b.longName}`} as SearchResult));
-    setSearchingBus(true);
-    setBusSearchResults(busResults.filter(bus =>
-      bus.label.toLowerCase().includes(busSearchQuery.toLowerCase())
-    ));
-    setSearchingBus(false);
-  };
+ const handleBusSearch = async () => {
+  setSearchingBus(true);
 
-  const handleStopSearch = async () => {
-    setSearchingStop(true);
-    const stopListResponse = await fetch(
-      `https://bustime.mta.info/api/where/stops-for-route/MTA%20${selectedBus}.json?key=872a01f6-1395-48a3-836c-7095c06be381&includePolylines=false&version=2`,
-      {method: "GET"}
-    );
-    const responseJson = await stopListResponse.json();
-    const stopResults = responseJson.data.references.stops.map((s) => ({id: s.id, value: s.name, label: s.name} as SearchResult));
-    setStopSearchResults(stopResults.filter(stop =>
+  const busListResponse = await fetch("/api/fetch", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: "https://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=872a01f6-1395-48a3-836c-7095c06be381",
+      method: "GET",
+    }),
+  });
+
+  const responseJson = await busListResponse.json();
+
+  const busResults = responseJson.data.list.map(
+    (b: { shortName: string; longName: string }) =>
+      ({
+        id: b.shortName,
+        value: b.shortName,
+        label: `${b.shortName} - ${b.longName}`,
+      } as SearchResult)
+  );
+
+  setBusSearchResults(
+    busResults.filter((bus: SearchResult) =>
+      bus.label.toLowerCase().includes(busSearchQuery.toLowerCase())
+    )
+  );
+
+  setSearchingBus(false);
+};
+
+const handleStopSearch = async () => {
+  setSearchingStop(true);
+
+  const stopListResponse = await fetch("/api/fetch", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: `https://bustime.mta.info/api/where/stops-for-route/MTA%20${selectedBus}.json?key=872a01f6-1395-48a3-836c-7095c06be381&includePolylines=false&version=2`,
+      method: "GET",
+    }),
+  });
+
+  const responseJson = await stopListResponse.json();
+
+  const stopResults = responseJson.data.references.stops.map(
+    (s: { id: string; name: string }) =>
+      ({
+        id: s.id,
+        value: s.name,
+        label: s.name,
+      } as SearchResult)
+  );
+
+  setStopSearchResults(
+    stopResults.filter((stop: SearchResult) =>
       stop.label.toLowerCase().includes(stopSearchQuery.toLowerCase())
-    ));
-    setSearchingStop(false);
-  };
+    )
+  );
+
+  setSearchingStop(false);
+};
 
   const handleAddBus = () => {
     if (selectedBus && selectedDirection && selectedStop) {

@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -147,22 +147,11 @@ export default function Login() {
               whileTap={{ scale: 0.98 }}
               className="w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all"
             >
-              Sign In
+              Register
             </motion.button>
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-blue-300">
-              Don't have an account?{' '}
-              <a href="/register">
-              <button className="text-white font-medium hover:underline transition-all">
-                Sign up
-              </button>
-              </a>
-            </p>
-
-          </div>
         </motion.div>
 
         {/* Footer */}
